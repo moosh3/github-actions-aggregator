@@ -3,12 +3,13 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/moosh3/github-actions-aggregator/pkg/auth"
+	"github.com/moosh3/github-actions-aggregator/pkg/config"
 	"github.com/moosh3/github-actions-aggregator/pkg/db"
-	"github.com/mooshe3/github-actions-aggregator/pkg/config"
-	"github.com/mooshe3/github-actions-aggregator/pkg/github"
+	"github.com/moosh3/github-actions-aggregator/pkg/github"
+	"github.com/moosh3/github-actions-aggregator/pkg/worker"
 )
 
-func StartServer(cfg *config.Config, db *db.Database, githubClient *github.Client) {
+func StartServer(cfg *config.Config, db *db.Database, githubClient *github.Client, workerPool *worker.WorkerPool) {
 	r := gin.Default()
 
 	// Public routes
@@ -16,7 +17,7 @@ func StartServer(cfg *config.Config, db *db.Database, githubClient *github.Clien
 	r.GET("/callback", auth.GitHubCallback)
 
 	// Webhook route (exclude middleware that could interfere)
-	webhookHandler := github.NewWebhookHandler(db, githubClient, cfg.GitHub.WebhookSecret)
+	webhookHandler := github.NewWebhookHandler(db, githubClient, workerPool, cfg.GitHub.WebhookSecret)
 	r.POST("/webhook", webhookHandler.HandleWebhook)
 
 	// Protected routes

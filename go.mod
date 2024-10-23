@@ -5,7 +5,6 @@ go 1.23.2
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/go-github/v50 v50.2.0
-	github.com/moosh3/github-actions-aggregator v0.0.0-20241023163131-e09fd3b10193
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
