@@ -9,21 +9,25 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-github/v50/github"
-	"github.com/mooshe3/github-actions-aggregator/pkg/db"
+	"github.com/moosh3/github-actions-aggregator/pkg/db"
+	"github.com/moosh3/github-actions-aggregator/pkg/worker"
 )
 
 type WebhookHandler struct {
-	db            *db.Database
-	webhookSecret []byte
+	db       *db.Database
+	client   *Client
+	whSecret []byte
+	worker   *worker.WorkerPool
 }
 
-func NewWebhookHandler(db *db.Database, secret string) *WebhookHandler {
+func NewWebhookHandler(db *db.Database, client *Client, secret string, worker *worker.WorkerPool) *WebhookHandler {
 	return &WebhookHandler{
-		db:            db,
-		webhookSecret: []byte(secret),
+		db:       db,
+		client:   client,
+		whSecret: []byte(secret),
+		worker:   worker,
 	}
 }
-
 func (wh *WebhookHandler) HandleWebhook(c *gin.Context) {
 	payload, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -59,7 +63,7 @@ func (wh *WebhookHandler) HandleWebhook(c *gin.Context) {
 }
 
 func (wh *WebhookHandler) verifySignature(signature string, payload []byte) bool {
-	mac := hmac.New(sha256.New, wh.webhookSecret)
+	mac := hmac.New(sha256.New, wh.whSecret)
 	mac.Write(payload)
 	expectedSignature := "sha256=" + hex.EncodeToString(mac.Sum(nil))
 	return hmac.Equal([]byte(signature), []byte(expectedSignature))
@@ -78,7 +82,7 @@ func (wh *WebhookHandler) handleWorkflowRunEvent(event *github.WorkflowRunEvent)
 		}
 
 		// Enqueue a job to aggregate data after a new run is saved
-		wh.workerPool.JobQueue <- worker.Job{
+		wh.worker.JobQueue <- worker.Job{
 			Type: "aggregate_data",
 		}
 

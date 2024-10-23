@@ -12,6 +12,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const maxConcurrentPolls = 10
+
 type Poller struct {
 	db           *db.Database
 	ghClient     *gh.Client

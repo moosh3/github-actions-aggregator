@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
@@ -54,6 +55,7 @@ func GitHubCallback(c *gin.Context) {
 
 	// Save or update user in database (implement saveOrUpdateUser)
 	// Set user session (implement setUserSession)
+	setUserSession(c, user)
 
 	c.Redirect(http.StatusFound, "/dashboard")
 }
@@ -107,4 +109,8 @@ func getEnv(key, fallback string) string {
 		return value
 	}
 	return fallback
+}
+
+func setUserSession(c *gin.Context, user *GitHubUser) {
+	c.SetCookie("user_id", strconv.FormatInt(user.ID, 10), 300, "/", "", false, true)
 }

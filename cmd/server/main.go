@@ -3,22 +3,27 @@ package main
 import (
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
+	"os/exec"
 
-	"github.com/mooshe3/github-actions-aggregator/pkg/api"
-	"github.com/mooshe3/github-actions-aggregator/pkg/config"
-	"github.com/mooshe3/github-actions-aggregator/pkg/db"
-	"github.com/mooshe3/github-actions-aggregator/pkg/logger"
-	"github.com/mooshe3/github-actions-aggregator/pkg/worker"
+	"github.com/moosh3/github-actions-aggregator/pkg/api"
+	"github.com/moosh3/github-actions-aggregator/pkg/config"
+	"github.com/moosh3/github-actions-aggregator/pkg/db"
+	"github.com/moosh3/github-actions-aggregator/pkg/github"
+	"github.com/moosh3/github-actions-aggregator/pkg/logger"
 )
 
 func main() {
-	// Initialize configurations
+	// Load configuration
 	cfg := config.LoadConfig()
 
 	// Initialize logger
 	logger.Init(cfg.LogLevel)
+
+	// Run migrations
+	err := runMigrations()
+	if err != nil {
+		log.Fatalf("Failed to run migrations: %v", err)
+	}
 
 	// Initialize database
 	database, err := db.InitDB(cfg)
@@ -26,20 +31,16 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	// Start the worker pool
-	wp := worker.NewWorkerPool(database, 5) // Adjust the number of workers as needed
-	wp.Start()
+	// Initialize GitHub client
+	githubClient := github.NewClient(cfg.GitHub.AccessToken)
 
 	// Start the API server
-	go api.StartServer(cfg, database)
+	api.StartServer(cfg, database, githubClient)
+}
 
-	// Wait for interrupt signal to gracefully shut down the worker pool
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
-	<-quit
-
-	log.Println("Shutting down worker pool...")
-	wp.Stop()
-
-	log.Println("Server exiting")
+func runMigrations() error {
+	cmd := exec.Command("./scripts/migrate.sh", "up")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
