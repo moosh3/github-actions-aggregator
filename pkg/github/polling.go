@@ -15,10 +15,9 @@ import (
 const maxConcurrentPolls = 10
 
 type Poller struct {
-	db           *db.Database
-	ghClient     *gh.Client
-	interval     time.Duration
-	repositories []models.Repository
+	db       *db.Database
+	ghClient *gh.Client
+	interval time.Duration
 }
 
 func NewPoller(db *db.Database, token *oauth2.Token, interval time.Duration) *Poller {
@@ -84,7 +83,7 @@ func (p *Poller) pollWorkflows(repo models.Repository) {
 	}
 }
 
-func (p *Poller) pollWorkflowRuns(owner, repoName string, workflow *gh.Workflow) {
+func (p *Poller) pollWorkflowRuns(owner string, repoName string, workflow *gh.Workflow) {
 	opts := &gh.ListWorkflowRunsOptions{
 		ListOptions: gh.ListOptions{PerPage: 50},
 	}
