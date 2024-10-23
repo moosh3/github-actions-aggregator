@@ -3,9 +3,9 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/moosh3/github-actions-aggregator/pkg/auth"
-	"github.com/moosh3/github-actions-aggregator/pkg/config"
 	"github.com/moosh3/github-actions-aggregator/pkg/db"
-	"github.com/moosh3/github-actions-aggregator/pkg/github"
+	"github.com/mooshe3/github-actions-aggregator/pkg/config"
+	"github.com/mooshe3/github-actions-aggregator/pkg/github"
 )
 
 func StartServer(cfg *config.Config, db *db.Database, githubClient *github.Client) {

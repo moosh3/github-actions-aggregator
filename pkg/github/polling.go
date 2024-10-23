@@ -1,6 +1,7 @@
 package github
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -48,14 +49,14 @@ func (p *Poller) pollRepositories() {
 }
 
 func (p *Poller) pollWorkflows(repo models.Repository) {
-	workflows, err := p.client.ListWorkflows(repo.Owner, repo.Name)
+	workflows, err := p.client.ListWorkflows(repo.Owner.Login, repo.Name)
 	if err != nil {
-		log.Printf("Error listing workflows for %s/%s: %v", repo.Owner, repo.Name, err)
+		log.Printf("Error listing workflows for %s/%s: %v", repo.Owner.Login, repo.Name, err)
 		return
 	}
 
 	for _, workflow := range workflows {
-		p.pollWorkflowRuns(repo.Owner, repo.Name, workflow)
+		p.pollWorkflowRuns(repo.Owner.Login, repo.Name, workflow)
 	}
 }
 
@@ -67,5 +68,5 @@ func (p *Poller) pollWorkflowRuns(owner, repoName string, workflow *gh.Workflow)
 		return
 	}
 
-	// Process runs...
+	fmt.Println(runs)
 }

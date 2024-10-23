@@ -9,8 +9,11 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/moosh3/github-actions-aggregator/pkg/db/models"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
+
+	"github.com/moosh3/github-actions-aggregator/pkg/db"
 )
 
 var (
@@ -52,13 +55,19 @@ func GitHubCallback(c *gin.Context) {
 		return
 	}
 
-	// Save or update user in database (implement saveOrUpdateUser)
+	// Save or update user in database
+	err = db.SaveUser(user)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to save user"})
+		return
+	}
 	// Set user session (implement setUserSession)
+	setUserSession(c, user)
 
 	c.Redirect(http.StatusFound, "/dashboard")
 }
 
-func getUserInfo(token *oauth2.Token) (*GitHubUser, error) {
+func getUserInfo(token *oauth2.Token) (*models.GitHubUser, error) {
 	client := oauthConfig.Client(context.Background(), token)
 	resp, err := client.Get("https://api.github.com/user")
 	if err != nil {
@@ -66,19 +75,11 @@ func getUserInfo(token *oauth2.Token) (*GitHubUser, error) {
 	}
 	defer resp.Body.Close()
 
-	var user GitHubUser
+	var user models.GitHubUser
 	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
 		return nil, err
 	}
 	return &user, nil
-}
-
-type GitHubUser struct {
-	ID        int64  `json:"id"`
-	Login     string `json:"login"`
-	Name      string `json:"name"`
-	Email     string `json:"email"`
-	AvatarURL string `json:"avatar_url"`
 }
 
 func generateStateString() string {
@@ -100,6 +101,10 @@ func getSavedOAuthState(c *gin.Context) string {
 		return ""
 	}
 	return state
+}
+
+func setUserSession(c *gin.Context, user *models.GitHubUser) {
+	c.Set("user", user)
 }
 
 func getEnv(key, fallback string) string {
