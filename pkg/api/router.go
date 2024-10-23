@@ -22,9 +22,7 @@ func StartServer(cfg *config.Config, db *db.Database, githubClient *github.Clien
 	// Protected routes
 	protected := r.Group("/", auth.AuthMiddleware())
 	{
-		protected.GET("/dashboard", dashboardHandler)
-		protected.GET("/stats", statsHandler)
-		// Add other protected routes
+		protected.GET("/workflows/:id/stats", GetWorkflowStats)
 	}
 
 	r.Run(":" + cfg.ServerPort)

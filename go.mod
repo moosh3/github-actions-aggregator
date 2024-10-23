@@ -1,4 +1,4 @@
-module github.com/mooshe3/github-actions-aggregator
+module github.com/moosh3/github-actions-aggregator
 
 go 1.23.2
 

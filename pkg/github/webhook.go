@@ -9,8 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-github/v50/github"
+	"github.com/moosh3/github-actions-aggregator/pkg/db"
 	"github.com/moosh3/github-actions-aggregator/pkg/worker"
-	"github.com/mooshe3/github-actions-aggregator/pkg/db"
 )
 
 type WebhookHandler struct {
@@ -20,7 +20,7 @@ type WebhookHandler struct {
 	webhookSecret []byte
 }
 
-func NewWebhookHandler(db *db.Database, client *Client, secret string, wp *worker.WorkerPool) *WebhookHandler {
+func NewWebhookHandler(db *db.Database, client *Client, wp *worker.WorkerPool, secret string) *WebhookHandler {
 	return &WebhookHandler{
 		db:            db,
 		client:        client,
