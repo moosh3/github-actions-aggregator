@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/moosh3/github-actions-aggregator/pkg/github"
 	"github.com/mooshe3/github-actions-aggregator/pkg/api"
 	"github.com/mooshe3/github-actions-aggregator/pkg/config"
 	"github.com/mooshe3/github-actions-aggregator/pkg/db"
@@ -26,12 +27,21 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
+	// Initialize GitHub client
+	githubClient := github.NewClient(cfg.GitHub.AccessToken)
+
+	// Start the poller if enabled
+	if cfg.EnablePolling {
+		poller := github.NewPoller(database, githubClient, cfg.PollingInterval)
+		go poller.Start()
+	}
+
 	// Start the worker pool
 	wp := worker.NewWorkerPool(database, 5) // Adjust the number of workers as needed
 	wp.Start()
 
 	// Start the API server
-	go api.StartServer(cfg, database)
+	go api.StartServer(cfg, database, githubClient)
 
 	// Wait for interrupt signal to gracefully shut down the worker pool
 	quit := make(chan os.Signal, 1)

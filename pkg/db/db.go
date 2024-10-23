@@ -1,9 +1,12 @@
 package db
 
 import (
+	"fmt"
+
 	"github.com/google/go-github/v50/github"
 	"github.com/moosh3/github-actions-aggregator/pkg/config"
 	"github.com/moosh3/github-actions-aggregator/pkg/db/models"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -14,6 +17,21 @@ type Database struct {
 
 func InitDB(cfg *config.Config) (*gorm.DB, error) {
 	// Database initialization logic
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
+		cfg.Database.Host, cfg.Database.User, cfg.Database.Password, cfg.Database.DBName, cfg.Database.Port)
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	// Auto-migrate the schema
+	err = db.AutoMigrate(&models.Repository{}, &models.WorkflowRun{}, &models.Statistics{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to auto-migrate database schema: %w", err)
+	}
+
+	return db, nil
 }
 
 func (db *Database) GetMonitoredRepositories() ([]models.Repository, error) {

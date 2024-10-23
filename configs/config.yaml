@@ -1,0 +1,15 @@
+enable_polling: true
+polling_interval: 15m
+enable_webhooks: true
+
+server:
+  port: "8080"
+
+log:
+  level: "info"
+
+github:
+  client_id: "your_github_client_id"
+  client_secret: "your_github_client_secret"
+  access_token: "your_github_access_token"
+  webhook_secret: "your_webhook_secret"
