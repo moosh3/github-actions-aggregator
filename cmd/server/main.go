@@ -6,12 +6,12 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/moosh3/github-actions-aggregator/pkg/api"
 	"github.com/moosh3/github-actions-aggregator/pkg/config"
+	"github.com/moosh3/github-actions-aggregator/pkg/db"
 	"github.com/moosh3/github-actions-aggregator/pkg/github"
-	"github.com/mooshe3/github-actions-aggregator/pkg/api"
-	"github.com/mooshe3/github-actions-aggregator/pkg/db"
-	"github.com/mooshe3/github-actions-aggregator/pkg/logger"
-	"github.com/mooshe3/github-actions-aggregator/pkg/worker"
+	"github.com/moosh3/github-actions-aggregator/pkg/logger"
+	"github.com/moosh3/github-actions-aggregator/pkg/worker"
 )
 
 func main() {
