@@ -9,11 +9,10 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/moosh3/github-actions-aggregator/pkg/db"
 	"github.com/moosh3/github-actions-aggregator/pkg/db/models"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
-
-	"github.com/moosh3/github-actions-aggregator/pkg/db"
 )
 
 var (
