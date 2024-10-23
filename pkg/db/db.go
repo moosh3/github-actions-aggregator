@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/google/go-github/v50/github"
-	"github.com/moosh3/github-actions-aggregator/pkg/config"
+	config "github.com/moosh3/github-actions-aggregator/pkg/config"
 	"github.com/moosh3/github-actions-aggregator/pkg/db/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

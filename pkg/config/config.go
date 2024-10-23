@@ -2,16 +2,18 @@ package config
 
 import (
 	"log"
+	"time"
 
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	ServerPort    string
-	LogLevel      string
-	EnablePolling bool
-	Database      DatabaseConfig
-	GitHub        GitHubConfig
+	ServerPort      string
+	LogLevel        string
+	EnablePolling   bool
+	PollingInterval time.Duration
+	Database        DatabaseConfig
+	GitHub          GitHubConfig
 }
 
 type GitHubConfig struct {
@@ -46,8 +48,10 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		ServerPort: viper.GetString("server.port"),
-		LogLevel:   viper.GetString("log.level"),
+		ServerPort:      viper.GetString("server.port"),
+		LogLevel:        viper.GetString("log.level"),
+		EnablePolling:   viper.GetBool("polling.enabled"),
+		PollingInterval: viper.GetDuration("polling.interval"),
 		GitHub: GitHubConfig{
 			ClientID:      viper.GetString("github.client_id"),
 			ClientSecret:  viper.GetString("github.client_secret"),
