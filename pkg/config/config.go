@@ -6,6 +6,14 @@ import (
 	"github.com/spf13/viper"
 )
 
+type Config struct {
+	ServerPort    string
+	LogLevel      string
+	EnablePolling bool
+	Database      DatabaseConfig
+	GitHub        GitHubConfig
+}
+
 type GitHubConfig struct {
 	ClientID      string
 	ClientSecret  string
@@ -19,14 +27,6 @@ type DatabaseConfig struct {
 	Password string
 	DBName   string
 	Port     string
-}
-
-type Config struct {
-	ServerPort    string
-	LogLevel      string
-	EnablePolling bool
-	Database      DatabaseConfig
-	GitHub        GitHubConfig
 }
 
 func LoadConfig() *Config {
@@ -54,6 +54,12 @@ func LoadConfig() *Config {
 			AccessToken:   viper.GetString("github.access_token"),
 			WebhookSecret: viper.GetString("github.webhook_secret"),
 		},
-		// Initialize other fields...
+		Database: DatabaseConfig{
+			Host:     viper.GetString("database.host"),
+			User:     viper.GetString("database.user"),
+			Password: viper.GetString("database.password"),
+			DBName:   viper.GetString("database.db_name"),
+			Port:     viper.GetString("database.port"),
+		},
 	}
 }
