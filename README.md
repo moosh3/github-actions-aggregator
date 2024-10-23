@@ -124,8 +124,16 @@ github:
 
   **Example Request:**
 
+  Explicit time range:
+
   ```http
   GET /workflows/123/stats?start_time=2023-09-01T00:00:00Z&end_time=2023-09-30T23:59:59Z
+  ```
+
+  Relative time range:
+
+  ```http
+  GET /workflows/123/stats?start_time=24_hours&end_time=now
   ```
 
   **Example Response:**
