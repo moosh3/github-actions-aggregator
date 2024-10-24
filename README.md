@@ -40,7 +40,7 @@ A Go-based service to aggregate and analyze data from GitHub Actions workflows a
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/github-actions-aggregator.git
+   git clone https://github.com/moosh3/github-actions-aggregator.git
    cd github-actions-aggregator
    ```
 
@@ -218,7 +218,7 @@ Contributions are welcome! Please follow these steps:
 2. **Clone Your Fork**
 
    ```bash
-   git clone https://github.com/yourusername/github-actions-aggregator.git
+   git clone https://github.com/moosh3/github-actions-aggregator.git
    ```
 
 3. **Create a Feature Branch**
