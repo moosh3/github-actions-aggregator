@@ -10,6 +10,7 @@ import (
 	"github.com/moosh3/github-actions-aggregator/pkg/db"
 	"github.com/moosh3/github-actions-aggregator/pkg/github"
 	"github.com/moosh3/github-actions-aggregator/pkg/logger"
+	"github.com/moosh3/github-actions-aggregator/pkg/worker"
 )
 
 func main() {
@@ -34,8 +35,10 @@ func main() {
 	// Initialize GitHub client
 	githubClient := github.NewClient(cfg.GitHub.AccessToken)
 
+	workerPool := worker.NewWorkerPool(database, cfg.WorkerPoolSize)
+
 	// Start the API server
-	api.StartServer(cfg, database, githubClient)
+	api.StartServer(cfg, database, githubClient, workerPool)
 }
 
 func runMigrations() error {

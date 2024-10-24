@@ -14,12 +14,14 @@ import (
 
 const maxConcurrentPolls = 10
 
+// Poller represents a GitHub poller that periodically fetches workflow information.
 type Poller struct {
 	db       *db.Database
 	ghClient *gh.Client
 	interval time.Duration
 }
 
+// NewPoller creates a new Poller instance with the given database, OAuth token, and polling interval.
 func NewPoller(db *db.Database, token *oauth2.Token, interval time.Duration) *Poller {
 	ts := oauth2.StaticTokenSource(token)
 	tc := oauth2.NewClient(context.Background(), ts)
@@ -32,6 +34,7 @@ func NewPoller(db *db.Database, token *oauth2.Token, interval time.Duration) *Po
 	}
 }
 
+// Start begins the polling process, periodically calling pollRepositories based on the set interval.
 func (p *Poller) Start() {
 	ticker := time.NewTicker(p.interval)
 	defer ticker.Stop()
@@ -44,8 +47,9 @@ func (p *Poller) Start() {
 	}
 }
 
+// pollRepositories fetches all repositories from the database and polls their workflows concurrently.
 func (p *Poller) pollRepositories() {
-	repos, err := p.db.GetMonitoredRepositories()
+	repos, err := p.db.GetRepositories()
 	if err != nil {
 		log.Printf("Error fetching repositories: %v", err)
 		return
@@ -67,8 +71,9 @@ func (p *Poller) pollRepositories() {
 	wg.Wait()
 }
 
+// pollWorkflows fetches and processes all workflows for a given repository.
 func (p *Poller) pollWorkflows(repo models.Repository) {
-	owner := repo.Owner
+	owner := string(repo.Owner.Email)
 	repoName := repo.Name
 
 	// List workflows
@@ -83,6 +88,7 @@ func (p *Poller) pollWorkflows(repo models.Repository) {
 	}
 }
 
+// pollWorkflowRuns fetches and saves the runs for a specific workflow.
 func (p *Poller) pollWorkflowRuns(owner string, repoName string, workflow *gh.Workflow) {
 	opts := &gh.ListWorkflowRunsOptions{
 		ListOptions: gh.ListOptions{PerPage: 50},
@@ -103,6 +109,7 @@ func (p *Poller) pollWorkflowRuns(owner string, repoName string, workflow *gh.Wo
 	}
 }
 
+// handleRateLimit checks the rate limit from the GitHub API response and waits if the limit is exceeded.
 func (p *Poller) handleRateLimit(resp *gh.Response) {
 	if resp.Rate.Remaining == 0 {
 		resetTime := time.Until(resp.Rate.Reset.Time)

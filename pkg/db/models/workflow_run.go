@@ -16,6 +16,7 @@ type WorkflowRun struct {
 	Status           string
 	Conclusion       string
 	EventType        string
+	Event            string
 	URL              string
 	HTMLURL          string
 	JobsURL          string

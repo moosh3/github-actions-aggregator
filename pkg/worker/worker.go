@@ -69,8 +69,14 @@ func (wp *WorkerPool) worker(id int) {
 	for {
 		select {
 		case job := <-wp.JobQueue:
-
-			// ...
+			switch job.Type {
+			case "aggregate_workflow_data":
+				wp.aggregateWorkflowData(job.Payload)
+			}
 		}
 	}
+}
+
+func (wp *WorkerPool) aggregateWorkflowData(payload interface{}) {
+	log.Printf("Aggregating workflow data: %v", payload)
 }

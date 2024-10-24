@@ -13,6 +13,7 @@ import (
 	"github.com/moosh3/github-actions-aggregator/pkg/worker"
 )
 
+// WebhookHandler handles GitHub webhook events.
 type WebhookHandler struct {
 	db       *db.Database
 	client   *Client
@@ -20,6 +21,16 @@ type WebhookHandler struct {
 	worker   *worker.WorkerPool
 }
 
+// NewWebhookHandler creates a new WebhookHandler instance.
+//
+// Parameters:
+//   - db: A pointer to the database instance.
+//   - client: A pointer to the GitHub client.
+//   - secret: The webhook secret used for signature verification.
+//   - worker: A pointer to the worker pool.
+//
+// Returns:
+//   - A pointer to the new WebhookHandler instance.
 func NewWebhookHandler(db *db.Database, client *Client, secret string, worker *worker.WorkerPool) *WebhookHandler {
 	return &WebhookHandler{
 		db:       db,
@@ -28,6 +39,14 @@ func NewWebhookHandler(db *db.Database, client *Client, secret string, worker *w
 		worker:   worker,
 	}
 }
+
+// HandleWebhook processes incoming GitHub webhook events.
+//
+// It verifies the webhook signature, parses the event, and handles
+// different event types accordingly.
+//
+// Parameters:
+//   - c: The Gin context for the HTTP request.
 func (wh *WebhookHandler) HandleWebhook(c *gin.Context) {
 	payload, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -62,6 +81,15 @@ func (wh *WebhookHandler) HandleWebhook(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+// verifySignature checks if the provided signature matches the expected signature
+// calculated from the payload and the webhook secret.
+//
+// Parameters:
+//   - signature: The signature provided in the webhook header.
+//   - payload: The raw payload of the webhook.
+//
+// Returns:
+//   - A boolean indicating whether the signature is valid.
 func (wh *WebhookHandler) verifySignature(signature string, payload []byte) bool {
 	mac := hmac.New(sha256.New, wh.whSecret)
 	mac.Write(payload)
@@ -69,6 +97,13 @@ func (wh *WebhookHandler) verifySignature(signature string, payload []byte) bool
 	return hmac.Equal([]byte(signature), []byte(expectedSignature))
 }
 
+// handleWorkflowRunEvent processes GitHub workflow run events.
+//
+// It handles different actions for workflow runs, such as saving completed
+// runs to the database and enqueueing data aggregation jobs.
+//
+// Parameters:
+//   - event: A pointer to the GitHub WorkflowRunEvent.
 func (wh *WebhookHandler) handleWorkflowRunEvent(event *github.WorkflowRunEvent) {
 	action := event.GetAction()
 	run := event.GetWorkflowRun()
