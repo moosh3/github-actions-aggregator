@@ -74,6 +74,7 @@ func GetWorkflowStats(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "start_time must be before end_time"})
 		return
 	}
+
 	// Initialize counters
 	totalRuns := len(runs)
 	successCount := 0
@@ -125,5 +126,4 @@ func GetWorkflowStats(c *gin.Context) {
 		"start_time":            startTime.Format(time.RFC3339),
 		"end_time":              endTime.Format(time.RFC3339),
 	})
-
 }

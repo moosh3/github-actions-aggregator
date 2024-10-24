@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/signal"
+	"syscall"
 
 	"github.com/moosh3/github-actions-aggregator/pkg/api"
 	"github.com/moosh3/github-actions-aggregator/pkg/config"
@@ -36,9 +38,22 @@ func main() {
 	githubClient := github.NewClient(cfg.GitHub.AccessToken)
 
 	workerPool := worker.NewWorkerPool(database, cfg.WorkerPoolSize)
+	workerPool.Start()
 
 	// Start the API server
-	api.StartServer(cfg, database, githubClient, workerPool)
+	go api.StartServer(cfg, database, githubClient, workerPool)
+
+	// Set up graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Println("Shutting down server...")
+
+	// Stop the worker pool
+	workerPool.Stop()
+
+	log.Println("Server exiting")
 }
 
 func runMigrations() error {
