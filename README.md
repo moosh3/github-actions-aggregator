@@ -36,9 +36,10 @@ GitHub Actions Aggregator is a Go-based service designed to collect, aggregate, 
 
 ## Installation
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/github-actions-aggregator.git
+1. **Clone the Repository**
+
+   ```bash
+   git clone https://github.com/moosh3/github-actions-aggregator.git
    cd github-actions-aggregator
    ```
 
@@ -151,11 +152,35 @@ go tool cover -html=coverage.out
 
 Contributions are welcome! Please follow these steps:
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to your fork
-5. Create a pull request
+1. **Fork the Repository**
+
+   Click on the "Fork" button at the top right of the repository page.
+
+2. **Clone Your Fork**
+
+   ```bash
+   git clone https://github.com/moosh3/github-actions-aggregator.git
+   ```
+
+3. **Create a Feature Branch**
+
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+4. **Commit Your Changes**
+
+   ```bash
+   git commit -am "Add new feature"
+   ```
+
+5. **Push to Your Fork**
+
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+6. **Create a Pull Request**
 
 For more details, please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
