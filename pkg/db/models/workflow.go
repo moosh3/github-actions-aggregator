@@ -9,6 +9,8 @@ import (
 // Workflow represents a GitHub workflow
 type Workflow struct {
 	gorm.Model
+	WorkflowID   int64     `gorm:"index"`
+	NodeID       string    `gorm:"index"`
 	Name         string    `gorm:"type:varchar(255);not null"`
 	Path         string    `gorm:"type:varchar(255);not null"`
 	State        string    `gorm:"type:varchar(50)"`
@@ -19,7 +21,7 @@ type Workflow struct {
 	BadgeURL     string    `gorm:"column:badge_url;type:varchar(255)"`
 	RepositoryID uint      `gorm:"not null"`
 	// You might want to add a foreign key relationship to a Repository model if you have one
-	// Repository   Repository `gorm:"foreignKey:RepositoryID"`
+	Repository Repository `gorm:"foreignKey:RepositoryID"`
 }
 
 // TableName specifies the table name for the Workflow model

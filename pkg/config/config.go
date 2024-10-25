@@ -21,11 +21,12 @@ type DatabaseConfig struct {
 }
 
 type Config struct {
-	ServerPort     string
-	LogLevel       string
-	GitHub         GitHubConfig
-	Database       DatabaseConfig
-	WorkerPoolSize int
+	ServerPort            string
+	LogLevel              string
+	GitHub                GitHubConfig
+	Database              DatabaseConfig
+	PollingWorkerPoolSize int
+	WebhookWorkerPoolSize int
 }
 
 func LoadConfig() *Config {
@@ -39,9 +40,10 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		ServerPort:     viper.GetString("server.port"),
-		LogLevel:       viper.GetString("log.level"),
-		WorkerPoolSize: viper.GetInt("worker.pool_size"),
+		ServerPort:            viper.GetString("server.port"),
+		LogLevel:              viper.GetString("log.level"),
+		PollingWorkerPoolSize: viper.GetInt("polling_worker_pool_size"),
+		WebhookWorkerPoolSize: viper.GetInt("webhook_worker_pool_size"),
 		GitHub: GitHubConfig{
 			ClientID:      viper.GetString("github.client_id"),
 			ClientSecret:  viper.GetString("github.client_secret"),

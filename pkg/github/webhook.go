@@ -70,8 +70,11 @@ func (wh *WebhookHandler) HandleWebhook(c *gin.Context) {
 
 	// Handle different event types
 	switch e := event.(type) {
-	case *github.WorkflowRunEvent:
+	case *github.WorkflowRunEvent: // WorkflowRunEvent is triggered when a GitHub Actions workflow run is requested or completed.
 		wh.handleWorkflowRunEvent(e)
+	case *github.WorkflowJobEvent: // WorkflowJobEvent is triggered when a job is queued, started or completed.
+		wh.handleWorkflowJobEvent(e)
+
 	default:
 		// Unsupported event type
 		c.Status(http.StatusOK)
@@ -106,12 +109,17 @@ func (wh *WebhookHandler) verifySignature(signature string, payload []byte) bool
 //   - event: A pointer to the GitHub WorkflowRunEvent.
 func (wh *WebhookHandler) handleWorkflowRunEvent(event *github.WorkflowRunEvent) {
 	action := event.GetAction()
+	workflow := event.GetWorkflow()
 	run := event.GetWorkflowRun()
 
 	switch action {
 	case "completed":
+		err := wh.db.SaveWorkflow(workflow)
+		if err != nil {
+			// Log error
+		}
 		// Save or update the workflow run in the database
-		err := wh.db.SaveWorkflowRun(run)
+		err = wh.db.SaveWorkflowRun(run)
 		if err != nil {
 			// Log error
 		}
@@ -123,5 +131,13 @@ func (wh *WebhookHandler) handleWorkflowRunEvent(event *github.WorkflowRunEvent)
 
 	case "requested":
 		// Handle other actions if needed
+	}
+}
+
+func (wh *WebhookHandler) handleWorkflowJobEvent(event *github.WorkflowJobEvent) {
+	job := event.GetWorkflowJob()
+	err := wh.db.SaveWorkflowJob(job)
+	if err != nil {
+		// Log error
 	}
 }
