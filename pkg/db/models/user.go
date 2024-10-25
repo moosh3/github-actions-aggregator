@@ -12,6 +12,8 @@ type GitHubUser struct {
 	Login             string `gorm:"uniqueIndex;not null"`
 	ID                int64  `gorm:"uniqueIndex;not null"`
 	NodeID            string `gorm:"not null"`
+	Email             string `gorm:"not null"`
+	Username          string `gorm:"not null"`
 	AvatarURL         string
 	TenantID          string // The tenant ID for the user
 	URL               string

@@ -210,3 +210,16 @@ func (db *Database) SaveWorkflowStatistics(stats *models.WorkflowStatistics) err
 func (db *Database) DeleteWorkflowStatistics(id int) error {
 	return db.Conn.Delete(&models.WorkflowStatistics{}, id).Error
 }
+
+func (db *Database) GetUser(id int) (*models.GitHubUser, error) {
+	var user models.GitHubUser
+	err := db.Conn.First(&user, id).Error
+	return &user, err
+}
+
+func (db *Database) UpdateUser(user *models.GitHubUser) error {
+	return db.Conn.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		UpdateAll: true,
+	}).Create(user).Error
+}
