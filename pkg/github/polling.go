@@ -47,23 +47,49 @@ func (p *Poller) Start() {
 	}
 }
 
-// pollRepositories fetches all repositories from the database and polls their workflows concurrently.
+// pollRepositories fetches all repositories accessible to the authenticated user and polls their workflows concurrently.
 func (p *Poller) pollRepositories() {
-	repos, err := p.db.GetRepositories()
-	if err != nil {
-		log.Printf("Error fetching repositories: %v", err)
-		return
+	opt := &gh.RepositoryListOptions{
+		ListOptions: gh.ListOptions{PerPage: 10}, // Adjust per page as needed
+	}
+
+	var allRepos []*gh.Repository
+	for {
+		repos, resp, err := p.ghClient.Repositories.List(context.Background(), "", opt)
+		if err != nil {
+			log.Printf("Error fetching repositories: %v", err)
+			return
+		}
+		allRepos = append(allRepos, repos...)
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
 	}
 
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, maxConcurrentPolls)
 
-	for _, repo := range repos {
+	for _, repo := range allRepos {
 		wg.Add(1)
 		sem <- struct{}{}
-		go func(repo models.Repository) {
+		go func(repo *gh.Repository) {
 			defer wg.Done()
-			p.pollWorkflows(repo)
+			dbRepo := models.Repository{
+				Owner: models.GitHubUser{
+					Email: func(email *string) string {
+						if email != nil {
+							return *email
+						}
+						return ""
+					}(repo.Owner.Email),
+				},
+				Name: *repo.Name, // Dereference the pointer
+			}
+			err := p.db.SaveRepository(&dbRepo)
+			if err != nil {
+				log.Printf("Error saving repository %s: %v", repo.Name, err)
+			}
 			<-sem
 		}(repo)
 	}

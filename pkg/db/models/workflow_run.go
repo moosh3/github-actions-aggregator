@@ -11,6 +11,7 @@ type WorkflowRun struct {
 	gorm.Model
 	WorkflowID       int64 `gorm:"index"`
 	Name             string
+	NodeID           string
 	HeadBranch       string
 	HeadSHA          string
 	Status           string

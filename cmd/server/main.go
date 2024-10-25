@@ -37,11 +37,16 @@ func main() {
 	// Initialize GitHub client
 	githubClient := github.NewClient(cfg.GitHub.AccessToken)
 
-	workerPool := worker.NewWorkerPool(database, cfg.WorkerPoolSize)
-	workerPool.Start()
+	// Initialize worker pool for polling
+	pollingWorkerPool := worker.NewWorkerPool(database, cfg.PollingWorkerPoolSize)
+	pollingWorkerPool.Start()
+
+	// Initialize worker pool for webhooks
+	webhookWorkerPool := worker.NewWorkerPool(database, cfg.WebhookWorkerPoolSize)
+	webhookWorkerPool.Start()
 
 	// Start the API server
-	go api.StartServer(cfg, database, githubClient, workerPool)
+	go api.StartServer(cfg, database, githubClient, webhookWorkerPool)
 
 	// Set up graceful shutdown
 	quit := make(chan os.Signal, 1)
@@ -50,9 +55,9 @@ func main() {
 
 	log.Println("Shutting down server...")
 
-	// Stop the worker pool
-	workerPool.Stop()
-
+	// Stop the worker pools
+	webhookWorkerPool.Stop()
+	pollingWorkerPool.Stop()
 	log.Println("Server exiting")
 }
 
