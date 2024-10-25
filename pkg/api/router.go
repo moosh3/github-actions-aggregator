@@ -12,6 +12,9 @@ import (
 func StartServer(cfg *config.Config, db *db.Database, githubClient *github.Client, worker *worker.WorkerPool) {
 	r := gin.Default()
 
+	// Enable CORS
+	r.Use(corsMiddleware())
+
 	// Public routes for Github OAuth
 	r.GET("/login", auth.GitHubLogin)
 	r.GET("/callback", auth.GitHubCallback)
@@ -20,8 +23,15 @@ func StartServer(cfg *config.Config, db *db.Database, githubClient *github.Clien
 	webhookHandler := github.NewWebhookHandler(db, githubClient, cfg.GitHub.WebhookSecret, worker)
 	r.POST("/webhook", webhookHandler.HandleWebhook)
 
+	auth := r.Group("/auth")
+	{
+		auth.GET("/github/login", handleGithubLogin(cfg))
+		auth.GET("/github/callback", handleGithubCallback(cfg))
+		auth.GET("/user", authMiddleware(cfg), getCurrentUser)
+	}
+
 	// Require authentication for all repository routes
-	protected := r.Group("/repositories", auth.AuthMiddleware())
+	protected := r.Group("/repositories", authMiddleware(cfg))
 	{
 		protected.GET("", GetRepositories)
 		protected.GET("/:repoId", GetRepository)

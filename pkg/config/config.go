@@ -9,6 +9,7 @@ import (
 type GitHubConfig struct {
 	ClientID      string
 	ClientSecret  string
+	JWTSecret     string
 	AccessToken   string
 	WebhookSecret string
 }
@@ -23,6 +24,8 @@ type DatabaseConfig struct {
 type Config struct {
 	ServerPort            string
 	LogLevel              string
+	FrontendURL           string
+	APIURL                string
 	GitHub                GitHubConfig
 	Database              DatabaseConfig
 	PollingWorkerPoolSize int
@@ -42,11 +45,14 @@ func LoadConfig() *Config {
 	return &Config{
 		ServerPort:            viper.GetString("server.port"),
 		LogLevel:              viper.GetString("log.level"),
+		FrontendURL:           viper.GetString("frontend.url"),
+		APIURL:                viper.GetString("api.url"),
 		PollingWorkerPoolSize: viper.GetInt("polling_worker_pool_size"),
 		WebhookWorkerPoolSize: viper.GetInt("webhook_worker_pool_size"),
 		GitHub: GitHubConfig{
 			ClientID:      viper.GetString("github.client_id"),
 			ClientSecret:  viper.GetString("github.client_secret"),
+			JWTSecret:     viper.GetString("github.jwt_secret"),
 			AccessToken:   viper.GetString("github.access_token"),
 			WebhookSecret: viper.GetString("github.webhook_secret"),
 		},

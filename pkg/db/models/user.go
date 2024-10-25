@@ -12,14 +12,12 @@ type GitHubUser struct {
 	Login             string `gorm:"uniqueIndex;not null"`
 	ID                int64  `gorm:"uniqueIndex;not null"`
 	NodeID            string `gorm:"not null"`
+	Email             string `gorm:"not null"`
+	Username          string `gorm:"not null"`
 	AvatarURL         string
-	GravatarID        string
+	TenantID          string // The tenant ID for the user
 	URL               string
 	HTMLURL           string
-	FollowersURL      string
-	FollowingURL      string
-	GistsURL          string
-	StarredURL        string
 	SubscriptionsURL  string
 	OrganizationsURL  string
 	ReposURL          string
@@ -28,17 +26,6 @@ type GitHubUser struct {
 	Type              string
 	SiteAdmin         bool
 	Name              string
-	Company           string
-	Blog              string
-	Location          string
-	Email             string
-	Hireable          bool
-	Bio               string
-	TwitterUsername   string
-	PublicRepos       int
-	PublicGists       int
-	Followers         int
-	Following         int
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 }
